@@ -1,22 +1,23 @@
 {
-  "name": "shadcn-ui-monorepo",
-  "version": "0.0.1",
+  "name": "waylio",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "turbo build",
-    "dev": "turbo dev",
-    "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "db:generate": "cd apps/backend && pnpm prisma generate",
+    "db:push": "cd apps/backend && pnpm prisma db push",
+    "db:studio": "cd apps/backend && pnpm prisma studio"
   },
   "devDependencies": {
-    "@workspace/eslint-config": "workspace:*",
-    "@workspace/typescript-config": "workspace:*",
-    "prettier": "^3.6.2",
-    "turbo": "^2.5.5",
-    "typescript": "5.7.3"
+    "turbo": "^2.3.3",
+    "typescript": "^5.7.2"
   },
-  "packageManager": "pnpm@10.4.1",
+  "packageManager": "pnpm@9.15.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=18.0.0"
   }
 }

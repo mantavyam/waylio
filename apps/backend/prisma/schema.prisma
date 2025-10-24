@@ -1,0 +1,185 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PATIENT
+  DOCTOR
+  RECEPTION
+  ADMIN
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+enum ParkingStatus {
+  ACTIVE
+  COMPLETED
+  EXPIRED
+}
+
+enum POICategory {
+  DEPARTMENT
+  RESTROOM
+  CAFETERIA
+  PHARMACY
+  PARKING
+  ELEVATOR
+  EXIT
+}
+
+model User {
+  id                String    @id @default(cuid())
+  email             String    @unique
+  phone             String    @unique
+  password_hash     String
+  first_name        String
+  last_name         String
+  role              UserRole  @default(PATIENT)
+  created_at        DateTime  @default(now())
+  updated_at        DateTime  @updatedAt
+
+  // Relations
+  patient_appointments  Appointment[] @relation("PatientAppointments")
+  doctor_appointments   Appointment[] @relation("DoctorAppointments")
+  prescriptions_issued  Prescription[] @relation("DoctorPrescriptions")
+  prescriptions_received Prescription[] @relation("PatientPrescriptions")
+  parking_sessions      ParkingSession[]
+  doctor_profile        DoctorProfile?
+  patient_profile       PatientProfile?
+
+  @@map("users")
+}
+
+model PatientProfile {
+  id                String   @id @default(cuid())
+  user_id           String   @unique
+  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  medical_history   String?  @db.Text
+  emergency_contact String?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  @@map("patient_profiles")
+}
+
+model DoctorProfile {
+  id                String   @id @default(cuid())
+  user_id           String   @unique
+  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  specialization    String
+  department        String
+  consultation_fee  Decimal  @db.Decimal(10, 2)
+  availability      Json?
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+
+  @@map("doctor_profiles")
+}
+
+model Appointment {
+  id                      String            @id @default(cuid())
+  patient_id              String
+  doctor_id               String
+  scheduled_time          DateTime
+  status                  AppointmentStatus @default(SCHEDULED)
+  queue_position          Int?
+  check_in_time           DateTime?
+  consultation_start_time DateTime?
+  consultation_end_time   DateTime?
+  notes                   String?           @db.Text
+  payment_id              String?
+  created_at              DateTime          @default(now())
+  updated_at              DateTime          @updatedAt
+
+  patient       User           @relation("PatientAppointments", fields: [patient_id], references: [id])
+  doctor        User           @relation("DoctorAppointments", fields: [doctor_id], references: [id])
+  prescriptions Prescription[]
+
+  @@index([doctor_id, scheduled_time])
+  @@index([patient_id])
+  @@map("appointments")
+}
+
+model Prescription {
+  id                String   @id @default(cuid())
+  appointment_id    String
+  patient_id        String
+  doctor_id         String
+  medicines         Json
+  diagnosis         String?  @db.Text
+  notes             String?  @db.Text
+  issued_at         DateTime @default(now())
+  digital_signature String?
+
+  appointment Appointment @relation(fields: [appointment_id], references: [id])
+  patient     User        @relation("PatientPrescriptions", fields: [patient_id], references: [id])
+  doctor      User        @relation("DoctorPrescriptions", fields: [doctor_id], references: [id])
+
+  @@index([appointment_id])
+  @@index([patient_id])
+  @@map("prescriptions")
+}
+
+model ParkingSlot {
+  id           String           @id @default(cuid())
+  slot_number  String           @unique
+  level        String
+  zone         String
+  is_occupied  Boolean          @default(false)
+  coordinates  Json?
+  created_at   DateTime         @default(now())
+  updated_at   DateTime         @updatedAt
+
+  sessions     ParkingSession[]
+
+  @@index([is_occupied])
+  @@map("parking_slots")
+}
+
+model ParkingSession {
+  id         String        @id @default(cuid())
+  user_id    String
+  slot_id    String
+  entry_time DateTime      @default(now())
+  exit_time  DateTime?
+  duration   Int
+  amount     Decimal       @db.Decimal(10, 2)
+  payment_id String
+  status     ParkingStatus @default(ACTIVE)
+  qr_code    String        @unique
+  created_at DateTime      @default(now())
+
+  user User        @relation(fields: [user_id], references: [id])
+  slot ParkingSlot @relation(fields: [slot_id], references: [id])
+
+  @@index([user_id])
+  @@index([status])
+  @@map("parking_sessions")
+}
+
+model PointOfInterest {
+  id          String      @id @default(cuid())
+  name        String
+  category    POICategory
+  building    String
+  floor       Int
+  coordinates Json
+  description String?     @db.Text
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+
+  @@index([category])
+  @@map("points_of_interest")
+}
