@@ -1,26 +1,16 @@
 import { FastifyError, FastifyReply, FastifyRequest } from 'fastify';
 import type { ApiError } from '@waylio/shared-ts';
 import { nanoid } from 'nanoid';
-
-export class AppError extends Error {
-  constructor(
-    public code: string,
-    public message: string,
-    public statusCode: number = 500,
-    public details?: Record<string, any>
-  ) {
-    super(message);
-    this.name = 'AppError';
-  }
-}
+import { APIError } from '../utils/APIError.js';
+import { ZodError } from 'zod';
 
 export const errorHandler = (
-  error: FastifyError | AppError,
+  error: FastifyError | APIError | ZodError | Error,
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
   const requestId = nanoid(10);
-  
+
   // Log error (exclude PII)
   request.log.error({
     requestId,
@@ -29,7 +19,22 @@ export const errorHandler = (
     path: request.url,
   });
 
-  if (error instanceof AppError) {
+  // Handle Zod validation errors
+  if (error instanceof ZodError) {
+    const response: ApiError = {
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Invalid request data',
+        details: error.errors,
+        timestamp: new Date().toISOString(),
+        requestId,
+      },
+    };
+    return reply.status(400).send(response);
+  }
+
+  // Handle APIError
+  if (error instanceof APIError) {
     const response: ApiError = {
       error: {
         code: error.code,

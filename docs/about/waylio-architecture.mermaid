@@ -1,0 +1,505 @@
+graph TB
+    subgraph "WAYLIO SYSTEM ARCHITECTURE - COMPLETE BLUEPRINT"
+        direction TB
+    end
+    
+    subgraph "FOUR CORE PILLARS P1-P4"
+        P1_PILLAR["P1: APPOINTMENT & QUEUE<br/>Pre-registration → Booking → E-Check-in → Virtual Queue"]
+        P2_PILLAR["P2: DIGITAL PRESCRIPTIONS<br/>Doctor Creates → E-Sign → Transmit → Patient Views"]
+        P3_PILLAR["P3: AR NAVIGATION - MULTISET AI<br/>1m Accuracy → AR/2D Toggle → Turn-by-Turn → POI Search"]
+        P4_PILLAR["P4: SMART PARKING<br/>QR Entry → Fixed Payment → Slot Assign → Navigate to Spot"]
+    end
+    
+    subgraph "📱 MOBILE APP - KOTLIN + JETPACK COMPOSE Android"
+        MA_ENTRY[App Entry Point]
+        
+        subgraph "Authentication Layer"
+            MA_AUTH[Login/Register]
+            MA_OTP[OTP Verification]
+            MA_BIOMETRIC[Biometric Auth]
+            MA_TOKEN[JWT Token Storage]
+        end
+        
+        MA_ENTRY --> MA_AUTH
+        MA_AUTH --> MA_OTP
+        MA_AUTH --> MA_BIOMETRIC
+        MA_AUTH --> MA_TOKEN
+        MA_TOKEN --> MA_HOME[Home Dashboard]
+        
+        subgraph "P1: Appointment Flow"
+            MA_HOME --> MA_P1[Appointments Module]
+            MA_P1 --> MA_P1_SEARCH[Search Doctors/Depts]
+            MA_P1 --> MA_P1_PROFILE[Doctor Profile View]
+            MA_P1_PROFILE --> MA_P1_SLOTS[Time Slot Selection]
+            MA_P1_SLOTS --> MA_P1_PREREG[Pre-Registration Forms]
+            MA_P1_PREREG --> MA_P1_REVIEW[Review & Confirm]
+            MA_P1_REVIEW --> MA_P1_PAY[Payment Gateway]
+            MA_P1_PAY --> MA_P1_CONFIRM[Appointment Confirmed]
+            
+            MA_P1 --> MA_P1_CHECKIN[E-Check-in on Campus]
+            MA_P1_CHECKIN --> MA_P1_QUEUE[Live Queue Status]
+            MA_P1_QUEUE --> MA_P1_NOTIFY[Push Notification 2 away]
+        end
+        
+        subgraph "P2: Prescription View"
+            MA_HOME --> MA_P2[Prescriptions Module]
+            MA_P2 --> MA_P2_LIST[Prescription History]
+            MA_P2 --> MA_P2_DETAIL[Detailed Rx View]
+            MA_P2_DETAIL --> MA_P2_PDF[Download PDF]
+            MA_P2_DETAIL --> MA_P2_SHARE[Share with Pharmacy]
+        end
+        
+        subgraph "P3: AR Navigation - Multiset Integration"
+            MA_HOME --> MA_P3[Navigation Module]
+            MA_P3 --> MA_P3_POI[POI Search]
+            MA_P3 --> MA_P3_CAMERA[AR Camera Mode]
+            MA_P3_CAMERA --> MA_P3_OVERLAY[AR Overlays + Arrows]
+            MA_P3 --> MA_P3_MAP[2D Map Mode]
+            MA_P3_MAP --> MA_P3_ROUTE[Turn-by-Turn Route]
+            MA_P3 --> MA_P3_TOGGLE[Auto Mode Switch<br/>Accelerometer Detect]
+        end
+        
+        subgraph "P4: Parking Management"
+            MA_HOME --> MA_P4[Parking Module]
+            MA_P4 --> MA_P4_QR[Scan QR at Gate]
+            MA_P4_QR --> MA_P4_DURATION[Select Duration]
+            MA_P4_DURATION --> MA_P4_PAY[Upfront Payment]
+            MA_P4_PAY --> MA_P4_ASSIGN[Slot Assignment]
+            MA_P4_ASSIGN --> MA_P4_TICKET[Digital Ticket + QR]
+            MA_P4_TICKET --> MA_P4_NAV[Navigate to Slot]
+        end
+        
+        subgraph "Profile & Records"
+            MA_HOME --> MA_PROFILE[Profile Management]
+            MA_PROFILE --> MA_HISTORY[Visit History]
+            MA_PROFILE --> MA_MEDICAL[Medical Records]
+            MA_PROFILE --> MA_PAYMENTS[Payment History]
+        end
+    end
+    
+    subgraph "WEB DASHBOARD - NEXT.JS 14+ + TYPESCRIPT + TAILWIND + SHADCN"
+        WEB_ENTRY[Web Portal Entry]
+        
+        subgraph "Role-Based Auth"
+            WEB_LOGIN[Login with User ID]
+            WEB_2FA[Two-Factor Auth]
+            WEB_RBAC{Role Check}
+        end
+        
+        WEB_ENTRY --> WEB_LOGIN
+        WEB_LOGIN --> WEB_2FA
+        WEB_2FA --> WEB_RBAC
+        
+        subgraph "DOCTOR DASHBOARD"
+            WEB_RBAC --> DOC_DASH[Doctor Dashboard]
+            DOC_DASH --> DOC_HOME[Daily Schedule<br/>Kanban/Calendar/List View]
+            
+            DOC_DASH --> DOC_QUEUE[Live Patient Queue Feed]
+            DOC_QUEUE --> DOC_PATIENT[Patient Blueprint Card]
+            DOC_PATIENT --> DOC_TABS[Tabs: Overview/History/Docs/Rx]
+            
+            DOC_TABS --> DOC_RX_CREATE[Digital Rx Creation]
+            DOC_RX_CREATE --> DOC_MED_SEARCH[Medicine DB Search]
+            DOC_RX_CREATE --> DOC_DOSAGE[Dosage/Frequency Config]
+            DOC_RX_CREATE --> DOC_TEMPLATE[Use Rx Template]
+            DOC_RX_CREATE --> DOC_PREVIEW[Preview Formatted Rx]
+            DOC_PREVIEW --> DOC_SIGN[E-Signature]
+            DOC_SIGN --> DOC_TRANSMIT[Transmit to Patient]
+            
+            DOC_DASH --> DOC_PROFILE_MGT[Profile Management]
+            DOC_PROFILE_MGT --> DOC_SCHEDULE[Schedule Setup]
+            DOC_PROFILE_MGT --> DOC_FEES[Fee Configuration]
+            DOC_PROFILE_MGT --> DOC_HOLIDAYS[Holidays & Leaves]
+        end
+        
+        subgraph "🏢 RECEPTION STAFF DASHBOARD"
+            WEB_RBAC --> STAFF_DASH[Staff Dashboard]
+            STAFF_DASH --> STAFF_VIEW[Doctor Bookings View]
+            STAFF_DASH --> STAFF_MANUAL[Manual Appointment<br/>for Walk-ins]
+            STAFF_MANUAL --> STAFF_SEARCH[Search/Create Patient]
+            STAFF_SEARCH --> STAFF_TEMP[Temp Profile Creation]
+            STAFF_TEMP --> STAFF_BOOK[Book & Assign]
+            
+            STAFF_DASH --> STAFF_CHECKIN[Patient Check-in UI]
+            STAFF_CHECKIN --> STAFF_SCREEN[Screening Questions]
+            STAFF_SCREEN --> STAFF_CONFIRM[Confirm Check-in]
+            
+            STAFF_DASH --> STAFF_PARKING[Parking Exit Verify]
+        end
+        
+        subgraph "ADMIN DASHBOARD"
+            WEB_RBAC --> ADMIN_DASH[Admin Dashboard]
+            ADMIN_DASH --> ADMIN_HOME[Operations Overview]
+            
+            ADMIN_DASH --> ADMIN_CRUD[Staff/Doctor CRUD]
+            ADMIN_CRUD --> ADMIN_ADD[Add New User]
+            ADMIN_ADD --> ADMIN_UID[Generate Unique ID<br/>HOS-DOC-XXXXX]
+            ADMIN_UID --> ADMIN_CREDS[Send Credentials]
+            ADMIN_CRUD --> ADMIN_EDIT[Edit User]
+            ADMIN_CRUD --> ADMIN_DEACT[Deactivate User]
+            
+            ADMIN_DASH --> ADMIN_OCC_DASH[Live Occupancy]
+            ADMIN_OCC_DASH --> ADMIN_PARK_MAP[Parking Map Real-time]
+            ADMIN_OCC_DASH --> ADMIN_DEPT_OCC[Department Occupancy]
+            ADMIN_OCC_DASH --> ADMIN_ROOM_OCC[Room Status]
+            
+            ADMIN_DASH --> ADMIN_METRICS[Analytics & Metrics]
+            ADMIN_METRICS --> ADMIN_KPI[KPI Dashboard]
+            ADMIN_METRICS --> ADMIN_REPORTS[Generate Reports]
+            ADMIN_METRICS --> ADMIN_INSIGHTS[AI Insights]
+            
+            ADMIN_DASH --> ADMIN_FEEDBACK[Complaints & Feedback]
+            ADMIN_FEEDBACK --> ADMIN_FB_LIST[Feedback List]
+            ADMIN_FB_LIST --> ADMIN_FB_DETAIL[Detail View]
+            ADMIN_FB_DETAIL --> ADMIN_FB_ASSIGN[Assign to Staff]
+            ADMIN_FB_DETAIL --> ADMIN_FB_RESOLVE[Mark Resolved]
+            
+            ADMIN_DASH --> ADMIN_SETTINGS[System Settings]
+            ADMIN_SETTINGS --> ADMIN_CONFIG[Hospital Config]
+            ADMIN_SETTINGS --> ADMIN_INTEGRATIONS[API Integrations]
+        end
+    end
+    
+    subgraph "BACKEND SERVICES - NODE.JS + TYPESCRIPT + EXPRESS/FASTIFY"
+        API_GW[API Gateway<br/>Port: 3000]
+        API_GW --> MIDDLEWARE[Middleware Stack]
+        
+        subgraph "Middleware Stack"
+            MW_AUTH[JWT Auth Middleware]
+            MW_RBAC[Role Permission Check]
+            MW_RATE[Rate Limiting]
+            MW_VALID[Request Validation]
+            MW_ERROR[Error Handler]
+            MW_LOG[Request Logger]
+        end
+        
+        MIDDLEWARE --> MW_AUTH
+        MIDDLEWARE --> MW_RBAC
+        MIDDLEWARE --> MW_RATE
+        MIDDLEWARE --> MW_VALID
+        
+        subgraph "MICROSERVICES ARCHITECTURE"
+            
+            subgraph "Appointment Service"
+                APPT_SVC[Appointment Service<br/>Module]
+                APPT_SVC --> APPT_CREATE[Create Booking API]
+                APPT_SVC --> APPT_SEARCH[Search Doctors API]
+                APPT_SVC --> APPT_SLOTS[Available Slots API]
+                APPT_SVC --> APPT_CHECKIN_API[E-Check-in Handler]
+                APPT_SVC --> APPT_QUEUE_MGT[Queue Manager<br/>Position Calculator]
+                APPT_SVC --> APPT_NOTIFY_TRIG[Notification Triggers]
+            end
+            
+            subgraph "Prescription Service"
+                RX_SVC[Prescription Service<br/>Module]
+                RX_SVC --> RX_CREATE_API[Create Rx API]
+                RX_SVC --> RX_MED_DB[Medicine Database<br/>Search & Validate]
+                RX_SVC --> RX_TEMPLATE_API[Template CRUD API]
+                RX_SVC --> RX_SIGN_API[E-Signature Processor]
+                RX_SVC --> RX_PDF_GEN[PDF Generator]
+                RX_SVC --> RX_TRANSMIT_API[Transmit to Patient API]
+                RX_SVC --> RX_HISTORY[Prescription History API]
+            end
+            
+            subgraph "Navigation Service"
+                NAV_SVC[Navigation Service<br/>Module]
+                NAV_SVC --> NAV_PROXY[Multiset AI Proxy<br/>API Key Management]
+                NAV_SVC --> NAV_ROUTE_API[Route Calculation API]
+                NAV_SVC --> NAV_POI_MGT[POI Management CRUD]
+                NAV_SVC --> NAV_MAPS_API[Campus Maps Handler]
+                NAV_SVC --> NAV_ANALYTICS[Navigation Analytics]
+            end
+            
+            subgraph "Parking Service"
+                PARK_SVC[Parking Service<br/>Module]
+                PARK_SVC --> PARK_QR_VERIFY[QR Code Validator]
+                PARK_SVC --> PARK_SLOT_ALGO[Slot Assignment<br/>Algorithm]
+                PARK_SVC --> PARK_PAY_API[Payment Processing API]
+                PARK_SVC --> PARK_SESSION_API[Session Management]
+                PARK_SVC --> PARK_OCC_TRACK[Occupancy Tracker]
+                PARK_SVC --> PARK_TICKET_GEN[Digital Ticket Generator]
+            end
+            
+            subgraph "Auth & User Service"
+                AUTH_SVC[Auth Service<br/>Module]
+                AUTH_SVC --> AUTH_REGISTER[User Registration API]
+                AUTH_SVC --> AUTH_LOGIN[Login Handler]
+                AUTH_SVC --> AUTH_JWT_GEN[JWT Token Generator]
+                AUTH_SVC --> AUTH_OTP_API[OTP Send/Verify API]
+                AUTH_SVC --> AUTH_2FA_API[2FA Handler]
+                AUTH_SVC --> AUTH_REFRESH[Token Refresh API]
+                AUTH_SVC --> AUTH_RBAC_ENGINE[RBAC Engine]
+                AUTH_SVC --> AUTH_PASSWORD[Password Reset API]
+            end
+            
+            subgraph "Notification Service"
+                NOTIF_SVC[Notification Service<br/>Module]
+                NOTIF_SVC --> NOTIF_PUSH_API[Push Notification API<br/>FCM Integration]
+                NOTIF_SVC --> NOTIF_SMS_API[SMS Gateway API]
+                NOTIF_SVC --> NOTIF_EMAIL_API[Email Service API]
+                NOTIF_SVC --> NOTIF_QUEUE_API[Queue Update Notifier]
+                NOTIF_SVC --> NOTIF_RX_API[Rx Ready Notifier]
+                NOTIF_SVC --> NOTIF_TEMPLATE[Template Engine]
+            end
+            
+            subgraph "Analytics Service"
+                ANALYTICS_SVC[Analytics Service<br/>Module]
+                ANALYTICS_SVC --> ANALYTICS_KPI[KPI Calculation Engine]
+                ANALYTICS_SVC --> ANALYTICS_REPORT[Report Generator]
+                ANALYTICS_SVC --> ANALYTICS_INSIGHTS_AI[AI Insights Engine]
+                ANALYTICS_SVC --> ANALYTICS_EXPORT[Export Handler PDF/Excel]
+                ANALYTICS_SVC --> ANALYTICS_SCHEDULE[Scheduled Reports]
+            end
+            
+            subgraph "Feedback Service"
+                FEEDBACK_SVC[Feedback Service<br/>Module]
+                FEEDBACK_SVC --> FB_CREATE[Submit Feedback API]
+                FEEDBACK_SVC --> FB_LIST[List Feedback API]
+                FEEDBACK_SVC --> FB_ASSIGN[Assign to Staff API]
+                FEEDBACK_SVC --> FB_RESOLVE[Resolution Handler]
+                FEEDBACK_SVC --> FB_ANALYTICS[Sentiment Analysis]
+            end
+        end
+        
+        API_GW --> APPT_SVC
+        API_GW --> RX_SVC
+        API_GW --> NAV_SVC
+        API_GW --> PARK_SVC
+        API_GW --> AUTH_SVC
+        API_GW --> NOTIF_SVC
+        API_GW --> ANALYTICS_SVC
+        API_GW --> FEEDBACK_SVC
+        
+        MW_ERROR --> ERROR_HANDLER[Error Handling]
+        ERROR_HANDLER --> ERROR_API[Standard APIError Response]
+        ERROR_API --> ERROR_LOG[Error Logging Sentry/BetterStack]
+    end
+    
+    subgraph "DATA LAYER"
+        subgraph "🐘 PostgreSQL + Prisma ORM"
+            DB[(PostgreSQL<br/>Database<br/>Port: 5432)]
+            DB --> SCHEMA[Prisma Schema]
+            
+            SCHEMA --> TBL_USERS[users]
+            SCHEMA --> TBL_DOCTORS[doctors]
+            SCHEMA --> TBL_STAFF[staff]
+            SCHEMA --> TBL_APPTS[appointments]
+            SCHEMA --> TBL_QUEUE[queue_status]
+            SCHEMA --> TBL_RX[prescriptions]
+            SCHEMA --> TBL_RX_ITEMS[prescription_items]
+            SCHEMA --> TBL_PARKING[parking_sessions]
+            SCHEMA --> TBL_PAYMENTS[payments]
+            SCHEMA --> TBL_FEEDBACK[feedback]
+            SCHEMA --> TBL_MEDICAL[medical_records]
+            SCHEMA --> TBL_POI[points_of_interest]
+            SCHEMA --> TBL_ANALYTICS[analytics_logs]
+        end
+        
+        subgraph "Redis Cache Layer"
+            CACHE[(Redis Cache<br/>Port: 6379)]
+            CACHE --> CACHE_SESSION[User Sessions<br/>JWT Tokens]
+            CACHE --> CACHE_QUEUE_RT[Real-time Queue Data<br/>TTL: 5 min]
+            CACHE --> CACHE_OCC[Live Occupancy<br/>Parking/Dept]
+            CACHE --> CACHE_SLOTS[Available Slots<br/>Updated Real-time]
+            CACHE --> CACHE_RATE[Rate Limit Counters]
+            CACHE --> CACHE_OTP[OTP Storage<br/>TTL: 5 min]
+        end
+        
+        APPT_SVC --> DB
+        RX_SVC --> DB
+        NAV_SVC --> DB
+        PARK_SVC --> DB
+        AUTH_SVC --> DB
+        FEEDBACK_SVC --> DB
+        ANALYTICS_SVC --> DB
+        
+        APPT_SVC --> CACHE
+        PARK_SVC --> CACHE
+        AUTH_SVC --> CACHE
+        APPT_QUEUE_MGT --> CACHE_QUEUE_RT
+        PARK_OCC_TRACK --> CACHE_OCC
+    end
+    
+    subgraph "REAL-TIME COMMUNICATION - SOCKET.IO"
+        WS_SERVER[Socket.io Server<br/>WebSocket Layer]
+        
+        subgraph "Real-time Channels"
+            WS_QUEUE_CH[queue_updates<br/>Channel]
+            WS_APPT_CH[appointment_status<br/>Channel]
+            WS_DASH_CH[doctor_dashboard<br/>Channel]
+            WS_OCC_CH[occupancy_updates<br/>Channel]
+            WS_NOTIF_CH[notifications<br/>Channel]
+        end
+        
+        WS_SERVER --> WS_QUEUE_CH
+        WS_SERVER --> WS_APPT_CH
+        WS_SERVER --> WS_DASH_CH
+        WS_SERVER --> WS_OCC_CH
+        WS_SERVER --> WS_NOTIF_CH
+        
+        APPT_QUEUE_MGT -.Emit.-> WS_QUEUE_CH
+        APPT_CREATE -.Emit.-> WS_APPT_CH
+        RX_TRANSMIT_API -.Emit.-> WS_DASH_CH
+        PARK_OCC_TRACK -.Emit.-> WS_OCC_CH
+        NOTIF_SVC -.Emit.-> WS_NOTIF_CH
+        
+        WS_QUEUE_CH -.Subscribe.-> MA_P1_QUEUE
+        WS_DASH_CH -.Subscribe.-> DOC_QUEUE
+        WS_OCC_CH -.Subscribe.-> ADMIN_OCC_DASH
+    end
+    
+    subgraph "🔌 EXTERNAL INTEGRATIONS"
+        subgraph "Multiset AI Platform"
+            MULTISET[Multiset AI SDK<br/>AR Navigation Engine]
+            MULTISET --> MULTI_ROUTE[Route Calculation<br/>1m Accuracy]
+            MULTISET --> MULTI_LOCAL[Indoor Localization]
+            MULTISET --> MULTI_AR[AR Anchor Management]
+        end
+        
+        subgraph "Payment Gateway"
+            PAYMENT_GW[Payment Gateway<br/>Razorpay/Stripe]
+            PAYMENT_GW --> PAY_PROCESS[Process Payment]
+            PAYMENT_GW --> PAY_WEBHOOK[Payment Webhooks]
+            PAYMENT_GW --> PAY_REFUND[Refund Handler]
+        end
+        
+        subgraph "Communication Gateways"
+            SMS_GW[SMS Gateway<br/>Twilio/MSG91]
+            EMAIL_SVC[Email Service<br/>SendGrid/AWS SES]
+            PUSH_SVC[Push Notification<br/>Firebase FCM]
+        end
+        
+        subgraph "Cloud Storage"
+            STORAGE[Cloud Storage<br/>AWS S3 Compatible]
+            STORAGE --> STORE_RX[Prescription PDFs]
+            STORAGE --> STORE_DOCS[Medical Documents]
+            STORAGE --> STORE_MAPS[Campus Maps/POI Images]
+        end
+        
+        NAV_PROXY --> MULTISET
+        PARK_PAY_API --> PAYMENT_GW
+        MA_P1_PAY --> PAYMENT_GW
+        NOTIF_SMS_API --> SMS_GW
+        NOTIF_EMAIL_API --> EMAIL_SVC
+        NOTIF_PUSH_API --> PUSH_SVC
+        RX_PDF_GEN --> STORAGE
+    end
+    
+    subgraph "MONOREPO STRUCTURE - TURBOREPO"
+        MONO[waylio/<br/>Root Monorepo]
+        
+        subgraph "apps/ Directory"
+            MONO_ANDROID[android/<br/>Kotlin Native + Jetpack Compose]
+            MONO_IOS[ios/<br/>Swift Native future]
+            MONO_WEB[web/<br/>Next.js 14+ App Router]
+            MONO_API[api/<br/>Node.js + Express/Fastify]
+        end
+        
+        subgraph "packages/ Shared"
+            MONO_TYPES[shared-types/<br/>TypeScript Interfaces<br/>API contracts]
+            MONO_UI[ui-components/<br/>React Shadcn Components]
+            MONO_DB[database/<br/>Prisma Schema + Migrations]
+            MONO_CONFIG[config/<br/>ESLint/TypeScript Config]
+        end
+        
+        MONO --> MONO_ANDROID
+        MONO --> MONO_IOS
+        MONO --> MONO_WEB
+        MONO --> MONO_API
+        MONO --> MONO_TYPES
+        MONO --> MONO_UI
+        MONO --> MONO_DB
+        MONO --> MONO_CONFIG
+        
+        MONO_WEB -.Import.-> MONO_TYPES
+        MONO_API -.Import.-> MONO_TYPES
+        MONO_WEB -.Import.-> MONO_UI
+        MONO_API -.Import.-> MONO_DB
+    end
+    
+    subgraph "HOSTING & DEPLOYMENT - RENDER PLATFORM"
+        RENDER[Render Cloud Platform<br/>Pay-as-You-Go Model]
+        
+        subgraph "Render Services"
+            RENDER_WEB[Web Service<br/>Next.js SSR/SSG<br/>Auto-Deploy from Git]
+            RENDER_API[API Service<br/>Node.js REST API<br/>Auto-Scale]
+            RENDER_DB[PostgreSQL<br/>Managed Database<br/>Auto Backups]
+            RENDER_REDIS[Redis Instance<br/>Managed Cache<br/>Persistence]
+            RENDER_CRON[Cron Jobs<br/>Scheduled Tasks]
+            RENDER_CDN[Static Assets CDN<br/>Images/Maps/PDFs]
+        end
+        
+        RENDER --> RENDER_WEB
+        RENDER --> RENDER_API
+        RENDER --> RENDER_DB
+        RENDER --> RENDER_REDIS
+        RENDER --> RENDER_CRON
+        RENDER --> RENDER_CDN
+        
+        MONO_WEB -.Deploy.-> RENDER_WEB
+        MONO_API -.Deploy.-> RENDER_API
+        SCHEMA -.Migrate.-> RENDER_DB
+        CACHE -.Connect.-> RENDER_REDIS
+    end
+    
+    subgraph "🛠️ TECH STACK SUMMARY"
+        STACK[Core Technologies]
+        STACK --> STACK_FE["Frontend<br/>Next.js 14+ + TypeScript<br/>Tailwind CSS + Shadcn UI<br/>React 18+ Server Components"]
+        STACK --> STACK_MOBILE["Mobile<br/>Kotlin Native + Jetpack Compose<br/>ARCore + Camera2 API<br/>Coroutines + Flow"]
+        STACK --> STACK_BE["Backend<br/>Node.js 20+ + TypeScript<br/>Express.js / Fastify<br/>RESTful API + WebSocket"]
+        STACK --> STACK_DB["Database<br/>PostgreSQL 15+<br/>Prisma ORM 5+<br/>Type-safe Queries"]
+        STACK --> STACK_CACHE["Cache<br/>Redis 7+<br/>Session Store<br/>Queue Management"]
+        STACK --> STACK_RT["Real-time<br/>Socket.io 4+<br/>Event-driven<br/>Pub/Sub Pattern"]
+        STACK --> STACK_AR["AR Navigation<br/>Multiset AI SDK<br/>1-meter Accuracy<br/>No Hardware Required"]
+        STACK --> STACK_MONO["Monorepo<br/>Turborepo<br/>PNPM Workspaces<br/>Shared Packages"]
+    end
+    
+    subgraph "SECURITY & COMPLIANCE"
+        SECURITY[Security Layer]
+        SECURITY --> SEC_AUTH["JWT Authentication<br/>Refresh Token Rotation"]
+        SECURITY --> SEC_ENCRYPT["End-to-End Encryption<br/>HTTPS/TLS 1.3"]
+        SECURITY --> SEC_RBAC["Role-Based Access Control<br/>Doctor/Staff/Admin/Patient"]
+        SECURITY --> SEC_AUDIT["Audit Logging<br/>All Critical Operations"]
+        SECURITY --> SEC_HIPAA["HIPAA Compliance<br/>Patient Data Privacy"]
+        SECURITY --> SEC_RATE["Rate Limiting<br/>DDoS Protection"]
+    end
+    
+    subgraph "PERFORMANCE & MONITORING"
+        PERF[Performance Goals]
+        PERF --> PERF_LCP["LCP < 2.5s<br/>Core Web Vitals"]
+        PERF --> PERF_NAV["AR Nav < 50ms<br/>Real-time Response"]
+        PERF --> PERF_FPS["60 FPS Animations<br/>Smooth UX"]
+        PERF --> PERF_CACHE["Redis Caching<br/>< 100ms Response"]
+        PERF --> PERF_CDN["CDN for Assets<br/>Global Delivery"]
+        PERF --> PERF_MONITOR["Monitoring<br/>BetterStack/Sentry"]
+    end
+    
+    subgraph "DATA FLOW PATTERNS"
+        FLOW[Critical Flows]
+        FLOW --> FLOW_BOOK["Appointment Booking<br/>Mobile → API → DB → Payment → Notify"]
+        FLOW --> FLOW_QUEUE["Queue Updates<br/>Check-in → Cache → WebSocket → UI"]
+        FLOW --> FLOW_RX["Digital Rx<br/>Doctor → API → DB → Storage → Patient"]
+        FLOW --> FLOW_NAV["AR Navigation<br/>Mobile → API → Multiset → AR Render"]
+        FLOW --> FLOW_PARKING["Parking Flow<br/>QR Scan → Payment → Slot Assign → Navigate"]
+    end
+    
+    %% STYLING
+    classDef mobile fill:#4CAF50,stroke:#2E7D32,stroke-width:3px,color:#fff
+    classDef web fill:#2196F3,stroke:#1565C0,stroke-width:3px,color:#fff
+    classDef backend fill:#FF9800,stroke:#E65100,stroke-width:3px,color:#fff
+    classDef database fill:#9C27B0,stroke:#6A1B9A,stroke-width:3px,color:#fff
+    classDef external fill:#F44336,stroke:#C62828,stroke-width:3px,color:#fff
+    classDef realtime fill:#00BCD4,stroke:#00838F,stroke-width:3px,color:#fff
+    classDef security fill:#FF5722,stroke:#BF360C,stroke-width:3px,color:#fff
+    classDef infra fill:#607D8B,stroke:#37474F,stroke-width:3px,color:#fff
+    classDef pillar fill:#FFC107,stroke:#F57C00,stroke-width:4px,color:#000
+    
+    class MA_ENTRY,MA_AUTH,MA_HOME,MA_P1,MA_P2,MA_P3,MA_P4,MA_PROFILE mobile
+    class WEB_ENTRY,WEB_LOGIN,DOC_DASH,STAFF_DASH,ADMIN_DASH web
+    class API_GW,APPT_SVC,RX_SVC,NAV_SVC,PARK_SVC,AUTH_SVC,NOTIF_SVC,ANALYTICS_SVC,FEEDBACK_SVC backend
+    class DB,CACHE,SCHEMA database
+    class MULTISET,PAYMENT_GW,SMS_GW,EMAIL_SVC,STORAGE,PUSH_SVC external
+    class WS_SERVER,WS_QUEUE_CH,WS_APPT_CH,WS_DASH_CH,WS_OCC_CH realtime
+    class SECURITY,SEC_AUTH,SEC_ENCRYPT,SEC_RBAC security
+    class RENDER,RENDER_WEB,RENDER_API,RENDER_DB,RENDER_REDIS infra
+    class P1_PILLAR,P2_PILLAR,P3_PILLAR,P4_PILLAR pillar

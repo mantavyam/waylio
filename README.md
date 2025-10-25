@@ -46,6 +46,18 @@ waylio/
 - PostgreSQL >= 14
 - Redis >= 7
 
+## Important Project Steering Documents
+
+- Project Architecture: /Users/mantavyam/Projects/waylio/docs/about/waylio-architecture.mermaid
+- Product Requirements Document: /Users/mantavyam/Projects/waylio/docs/about/WAYLIO-PRD.md
+- User Interface Design: /Users/mantavyam/Projects/waylio/docs/about/WAYLIO-UI-SCREENS.md
+
+**File Location for Development Phases:**
+- Overview: /Users/mantavyam/Projects/waylio/docs/about/phases/WAYLIO-DEV-PHASES.md
+- Phase 1 to 3: /Users/mantavyam/Projects/waylio/docs/about/phases/PHASE-1-TO-3.md
+- Phase 4 to 6: /Users/mantavyam/Projects/waylio/docs/about/phases/PHASE-4-TO-6.md
+- Phase 7 to 10: /Users/mantavyam/Projects/waylio/docs/about/phases/PHASE-7-TO-10.md
+
 ## Setup Instructions
 
 ### 1. Install Dependencies
@@ -147,11 +159,6 @@ pnpm build         # Build all apps
 
 ## Project Status
 
-✅ Monorepo structure  
-✅ Shared TypeScript types  
-✅ Backend API foundation  
-✅ Database schema (Prisma)  
-✅ Error handling middleware  
 🔲 Authentication system  
 🔲 Appointment booking  
 🔲 Digital prescriptions  
