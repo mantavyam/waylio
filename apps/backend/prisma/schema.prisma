@@ -14,6 +14,69 @@ enum UserRole {
   ADMIN
 }
 
+enum StaffRole {
+  NURSE
+  RECEPTIONIST
+  TECHNICIAN
+  PHARMACIST
+  ADMIN_STAFF
+  SECURITY
+  MAINTENANCE
+  HOUSEKEEPING
+  OTHER
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  PASSWORD_RESET
+  ACTIVATE
+  DEACTIVATE
+  BULK_IMPORT
+}
+
+enum ResourceType {
+  USER
+  DOCTOR
+  STAFF
+  PATIENT
+  HOSPITAL
+  DEPARTMENT
+  HOLIDAY
+  APPOINTMENT
+  PRESCRIPTION
+  PARKING
+}
+
+enum NotificationType {
+  SMS
+  EMAIL
+  PUSH
+}
+
+enum NotificationTemplate {
+  USER_CREDENTIALS
+  WELCOME_EMAIL
+  PASSWORD_RESET
+  TWO_FACTOR_AUTH
+  OTP_VERIFICATION
+  APPOINTMENT_CONFIRMATION
+  APPOINTMENT_REMINDER
+  QUEUE_UPDATE
+  PRESCRIPTION_READY
+  PARKING_CONFIRMATION
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  DELIVERED
+}
+
 enum AppointmentStatus {
   SCHEDULED
   CHECKED_IN
@@ -47,6 +110,10 @@ model User {
   first_name        String
   last_name         String
   role              UserRole  @default(PATIENT)
+  unique_id         String?   @unique // HOS-DOC-XXXXX or HOS-STF-XXXXX
+  is_active         Boolean   @default(true)
+  requires_password_change Boolean @default(false)
+  last_login        DateTime?
   created_at        DateTime  @default(now())
   updated_at        DateTime  @updatedAt
 
@@ -58,6 +125,8 @@ model User {
   parking_sessions      ParkingSession[]
   doctor_profile        DoctorProfile?
   patient_profile       PatientProfile?
+  staff_profile         StaffProfile?
+  audit_logs            AuditLog[]
 
   @@map("users")
 }
@@ -75,15 +144,24 @@ model PatientProfile {
 }
 
 model DoctorProfile {
-  id                String   @id @default(cuid())
-  user_id           String   @unique
-  user              User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  specialization    String
-  department        String
-  consultation_fee  Decimal  @db.Decimal(10, 2)
-  availability      Json?
-  created_at        DateTime @default(now())
-  updated_at        DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  user_id               String   @unique
+  user                  User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  department_id         String?
+  department            Department? @relation(fields: [department_id], references: [id])
+  specialization        String
+  registration_number   String   @unique
+  qualifications        String[] // Array of qualifications
+  experience            Int      // Years of experience
+  consultation_fee      Decimal  @db.Decimal(10, 2)
+  follow_up_fee         Decimal? @db.Decimal(10, 2)
+  video_consultation_fee Decimal? @db.Decimal(10, 2)
+  availability          Json?    // Weekly availability schedule
+  languages             String[] // Languages spoken
+  bio                   String?  @db.Text
+  certificate_urls      String[] // URLs to certificate documents
+  created_at            DateTime @default(now())
+  updated_at            DateTime @updatedAt
 
   @@map("doctor_profiles")
 }
@@ -182,4 +260,131 @@ model PointOfInterest {
 
   @@index([category])
   @@map("points_of_interest")
+}
+
+model Hospital {
+  id                String       @id @default(cuid())
+  name              String
+  address           String
+  city              String
+  state             String
+  zip_code          String
+  country           String
+  phone             String
+  email             String
+  website           String?
+  logo_url          String?
+  description       String?      @db.Text
+  operating_hours   Json         // Weekly operating hours
+  emergency_contact String
+  created_at        DateTime     @default(now())
+  updated_at        DateTime     @updatedAt
+
+  departments       Department[]
+  holidays          Holiday[]
+
+  @@map("hospitals")
+}
+
+model Holiday {
+  id           String   @id @default(cuid())
+  hospital_id  String
+  hospital     Hospital @relation(fields: [hospital_id], references: [id], onDelete: Cascade)
+  name         String
+  date         DateTime
+  is_recurring Boolean  @default(false)
+  created_at   DateTime @default(now())
+
+  @@index([hospital_id])
+  @@map("holidays")
+}
+
+model Department {
+  id              String          @id @default(cuid())
+  hospital_id     String
+  hospital        Hospital        @relation(fields: [hospital_id], references: [id], onDelete: Cascade)
+  name            String
+  description     String?         @db.Text
+  building        String
+  floor           Int
+  wing            String?
+  head_doctor_id  String?
+  phone           String?
+  email           String?
+  operating_hours Json?           // Department-specific hours
+  services        String[]        // Services offered
+  is_active       Boolean         @default(true)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+
+  doctors         DoctorProfile[]
+  staff           StaffProfile[]
+
+  @@index([hospital_id])
+  @@map("departments")
+}
+
+model StaffProfile {
+  id             String     @id @default(cuid())
+  user_id        String     @unique
+  user           User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  staff_role     StaffRole
+  department_id  String?
+  department     Department? @relation(fields: [department_id], references: [id])
+  employee_id    String?
+  joining_date   DateTime
+  shift_timings  Json?      // Weekly shift schedule
+  created_at     DateTime   @default(now())
+  updated_at     DateTime   @updatedAt
+
+  @@map("staff_profiles")
+}
+
+model AuditLog {
+  id            String       @id @default(cuid())
+  user_id       String
+  user          User         @relation(fields: [user_id], references: [id])
+  action        AuditAction
+  resource_type ResourceType
+  resource_id   String
+  changes       Json?        // Before/after values
+  ip_address    String?
+  user_agent    String?
+  metadata      Json?
+  created_at    DateTime     @default(now())
+
+  @@index([user_id])
+  @@index([resource_type, resource_id])
+  @@index([created_at])
+  @@map("audit_logs")
+}
+
+model NotificationTemplateModel {
+  id         String               @id @default(cuid())
+  name       NotificationTemplate @unique
+  type       NotificationType
+  subject    String?              // For email
+  body       String               @db.Text // Template with placeholders
+  created_at DateTime             @default(now())
+  updated_at DateTime             @updatedAt
+
+  @@map("notification_templates")
+}
+
+model NotificationLog {
+  id              String             @id @default(cuid())
+  type            NotificationType
+  template        NotificationTemplate
+  recipient_email String?
+  recipient_phone String?
+  status          NotificationStatus @default(PENDING)
+  sent_at         DateTime?
+  delivered_at    DateTime?
+  error           String?            @db.Text
+  metadata        Json?
+  created_at      DateTime           @default(now())
+
+  @@index([status])
+  @@index([created_at])
+  @@map("notification_logs")
 }

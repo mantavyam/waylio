@@ -150,7 +150,26 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AppSidebar({ 
+  user, 
+  onSignOut,
+  onNavigate,
+  ...props 
+}: React.ComponentProps<typeof Sidebar> & {
+  user?: {
+    name: string
+    email: string
+    avatar?: string
+  }
+  onSignOut?: () => void
+  onNavigate?: (url: string, title: string) => void
+}) {
+  const sidebarUser = {
+    name: user?.name || data.user.name,
+    email: user?.email || data.user.email,
+    avatar: user?.avatar || data.user.avatar,
+  }
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -169,12 +188,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={data.navMain} onNavigate={onNavigate} />
         <NavDocuments items={data.documents} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={sidebarUser} onSignOut={onSignOut} />
       </SidebarFooter>
     </Sidebar>
   )

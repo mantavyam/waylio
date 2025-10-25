@@ -1,10 +1,14 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import { seedNotificationTemplates } from './seeds/notificationTemplates.js';
 
 const prisma = new PrismaClient();
 
 async function main() {
   console.log('🌱 Seeding database...');
+
+  // Seed notification templates first
+  await seedNotificationTemplates(prisma);
 
   // Create admin user
   const adminPassword = await bcrypt.hash('admin123', 10);
@@ -54,8 +58,15 @@ async function main() {
       doctor_profile: {
         create: {
           specialization: 'Cardiology',
-          department: 'Cardiology',
+          registration_number: 'DR-CARD-001',
+          qualifications: ['MBBS', 'MD Cardiology', 'FACC'],
+          experience: 15,
           consultation_fee: 150.00,
+          follow_up_fee: 75.00,
+          video_consultation_fee: 100.00,
+          languages: ['English', 'Spanish'],
+          bio: 'Experienced cardiologist with 15 years of practice in treating cardiovascular diseases.',
+          certificate_urls: [],
           availability: {
             monday: { start: '09:00', end: '17:00' },
             tuesday: { start: '09:00', end: '17:00' },
@@ -82,8 +93,15 @@ async function main() {
       doctor_profile: {
         create: {
           specialization: 'Orthopedics',
-          department: 'Orthopedics',
+          registration_number: 'DR-ORTH-002',
+          qualifications: ['MBBS', 'MS Orthopedics', 'FAAOS'],
+          experience: 12,
           consultation_fee: 175.00,
+          follow_up_fee: 85.00,
+          video_consultation_fee: 125.00,
+          languages: ['English', 'French'],
+          bio: 'Orthopedic specialist focusing on sports injuries and joint replacements.',
+          certificate_urls: [],
           availability: {
             monday: { start: '10:00', end: '18:00' },
             tuesday: { start: '10:00', end: '18:00' },
@@ -110,8 +128,15 @@ async function main() {
       doctor_profile: {
         create: {
           specialization: 'General Medicine',
-          department: 'General Medicine',
+          registration_number: 'DR-GENM-003',
+          qualifications: ['MBBS', 'MD General Medicine'],
+          experience: 10,
           consultation_fee: 100.00,
+          follow_up_fee: 50.00,
+          video_consultation_fee: 75.00,
+          languages: ['English', 'Hindi'],
+          bio: 'General practitioner with expertise in preventive care and chronic disease management.',
+          certificate_urls: [],
           availability: {
             monday: { start: '08:00', end: '16:00' },
             tuesday: { start: '08:00', end: '16:00' },

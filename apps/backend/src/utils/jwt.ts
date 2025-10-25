@@ -5,6 +5,7 @@ export interface JWTPayload {
   userId: string;
   email: string;
   role: 'PATIENT' | 'DOCTOR' | 'RECEPTION' | 'ADMIN';
+  uniqueId?: string;
 }
 
 export const jwtUtils = {

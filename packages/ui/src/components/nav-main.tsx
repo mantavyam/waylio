@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
 
 import { Button } from "@workspace/ui/components/button"
@@ -13,13 +14,24 @@ import {
 
 export function NavMain({
   items,
+  onNavigate,
 }: {
   items: {
     title: string
     url: string
     icon?: Icon
   }[]
+  onNavigate?: (url: string, title: string) => void
 }) {
+  const [activeItem, setActiveItem] = useState(items[0]?.title || "")
+
+  const handleItemClick = (item: { title: string; url: string }) => {
+    setActiveItem(item.title)
+    if (onNavigate) {
+      onNavigate(item.url, item.title)
+    }
+  }
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -45,7 +57,11 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title}>
+              <SidebarMenuButton 
+                tooltip={item.title}
+                onClick={() => handleItemClick(item)}
+                isActive={activeItem === item.title}
+              >
                 {item.icon && <item.icon />}
                 <span>{item.title}</span>
               </SidebarMenuButton>

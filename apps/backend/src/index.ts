@@ -10,7 +10,9 @@ import { initializeSocket } from './config/socket.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { appointmentRoutes } from './routes/appointments.js';
 import { authRoutes } from './routes/auth.js';
-import { doctorRoutes } from './routes/doctors.js';
+// import { doctorRoutes } from './routes/doctors.js'; // Phase 2
+import hospitalRoutes from './routes/hospital.js';
+import adminRoutes from './routes/admin.js';
 
 const prisma = new PrismaClient();
 const fastify = Fastify({
@@ -52,7 +54,9 @@ fastify.get('/health', async () => {
 // Register routes
 await fastify.register(authRoutes, { prefix: '/api/v1/auth' });
 await fastify.register(appointmentRoutes, { prefix: '/api/v1/appointments' });
-await fastify.register(doctorRoutes, { prefix: '/api/v1/doctors' });
+// await fastify.register(doctorRoutes, { prefix: '/api/v1/doctors' }); // Phase 2
+await fastify.register(hospitalRoutes, { prefix: '/api/v1/hospital' });
+await fastify.register(adminRoutes, { prefix: '/api/v1/admin' });
 
 // Error handler
 fastify.setErrorHandler(errorHandler);
